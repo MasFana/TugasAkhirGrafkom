@@ -132,6 +132,7 @@ def main():
                     score = 0
                     obstacles.clear()
                     dino = Dino()  # Reset Dino
+                    game_over = False
 
         if not game_over:
             # Handle Dino movements
