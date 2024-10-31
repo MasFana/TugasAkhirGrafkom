@@ -1,9 +1,23 @@
+from re import S
+from turtle import width
 import pygame
 import cairo
 import sys
 import numpy as np
 
-class PygameCairoApp:
+RED = (0.1, 0.1, 1)
+BLUE = (1, 0.1, 0.1)
+GREEN = (0.1, 1, 0.1)
+
+LAVENDER = (181 / 255, 110 / 255, 231 / 255)
+YELLOW = (253 / 255, 197 / 255, 0 / 255)
+BRIGHT_YELLOW = (255 / 255, 241 / 255, 0 / 255)
+
+PURPLE = (0.5, 0.1, 0.7)
+ORANGE = (0.9, 0.6, 0.1)
+CYAN = (0.1, 0.7, 0.7)
+
+class PygameCairo:
     def __init__(self, screen_width=500, screen_height=500):
         self.screen_width = screen_width
         self.screen_height = screen_height
@@ -11,10 +25,11 @@ class PygameCairoApp:
         self.surface, self.data, self.context = self.create_surfaces()
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont(None, 24)
-
-
+        self.char = {'x': 50, 'y': 50,'width':100,'height':100,'speed': 5,'shift': 0}
+        
     def init_pygame(self):
         pygame.init()
+        pygame.display.set_caption('Pygame Cairo Fana')
         return pygame.display.set_mode((self.screen_width, self.screen_height))
 
     def create_surfaces(self):
@@ -32,11 +47,46 @@ class PygameCairoApp:
         fps_text = self.font.render(f'FPS: {int(fps)}', True, (0, 0, 0))
         self.screen.blit(fps_text, (5, 5))
 
+    def linear_gradient(self,a,b,c):
+        x,y,width,height = self.char['x'], self.char['y'], self.char['width'], self.char['height']
+        shift = x-self.char['shift']
+        grad = cairo.LinearGradient(shift,height/2 ,shift +width*4,height/2 )
+        colors = [a[::-1], b[::-1], c[::-1]]  # Define RED, BLUE, GREEN as your RGB values
+        for n in range(6):
+            grad.add_color_stop_rgb(n / 6, *colors[n % 3])
+        grad.add_color_stop_rgb(1, *a[::-1])  # Add the final stop at position 1 with RED
+        return grad
+    
     def draw_rect(self):
-        self.context.rectangle(50, 50, 100, 100)
-        self.context.set_source_rgb(1, 0, 0)
+        x,y,width,height = self.char['x'], self.char['y'], self.char['width'], self.char['height']
+        
+        grad = self.linear_gradient(RED,GREEN,BLUE)
+        self.context.rectangle(x, y, width, height)
+        grad2 = self.linear_gradient(LAVENDER,YELLOW,BRIGHT_YELLOW)
+        
+        self.context.set_source(grad)
         self.context.fill()
+        
+        self.context.set_line_width(10)
+        self.context.set_source(grad2)
+        self.context.rectangle(x, y,width,height)
+        self.context.stroke()
+        
         self.update_surface()
+        
+        self.char['shift'] = (self.char['shift'] + 1) % (width*2)  # Use modulo for seamless looping
+
+        
+    def handle_controls(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:
+            self.char['x'] -= self.char['speed']
+        if keys[pygame.K_RIGHT]:
+            self.char['x'] += self.char['speed']
+        if keys[pygame.K_UP]:
+            self.char['y'] -= self.char['speed']
+        if keys[pygame.K_DOWN]:
+            self.char['y'] += self.char['speed']
 
     def quit_pygame(self):
         try:
@@ -49,12 +99,14 @@ class PygameCairoApp:
         while True:
             self.context.set_source_rgb(1, 1, 1)
             self.context.paint()
+            
             self.draw_rect()
+            
             self.screen.blit(self.surface, (0, 0))
+            self.handle_controls()
             self.render_fps()
             pygame.display.flip()
             self.clock.tick(60)
-            
             if any(event.type == pygame.QUIT for event in pygame.event.get()):
                 break
 
@@ -63,5 +115,5 @@ class PygameCairoApp:
         self.quit_pygame()
 
 if __name__ == "__main__":
-    app = PygameCairoApp()
+    app = PygameCairo()
     app.run()
