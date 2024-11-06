@@ -1,5 +1,3 @@
-from re import S
-from turtle import width
 import pygame
 import cairo
 import sys
@@ -25,7 +23,7 @@ class PygameCairo:
         self.surface, self.data, self.context = self.create_surfaces()
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont(None, 24)
-        self.char = {'x': 50, 'y': 50,'width':100,'height':100,'speed': 5,'shift': 0}
+        self.char = {'x': 50, 'y': 50,'width':50,'height':50,'speed': 5,'shift': 0}
         
     def init_pygame(self):
         pygame.init()
@@ -62,13 +60,12 @@ class PygameCairo:
         
         grad = self.linear_gradient(RED,GREEN,BLUE)
         self.context.rectangle(x, y, width, height)
-        grad2 = self.linear_gradient(LAVENDER,YELLOW,BRIGHT_YELLOW)
         
-        self.context.set_source(grad)
+        self.context.set_source_rgb(0, 0, 0)
         self.context.fill()
         
-        self.context.set_line_width(10)
-        self.context.set_source(grad2)
+        self.context.set_line_width(5)
+        self.context.set_source(self.linear_gradient(LAVENDER,YELLOW,BRIGHT_YELLOW))
         self.context.rectangle(x, y,width,height)
         self.context.stroke()
         
@@ -76,7 +73,6 @@ class PygameCairo:
         
         self.char['shift'] = (self.char['shift'] + 1) % (width*2)  # Use modulo for seamless looping
 
-        
     def handle_controls(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:

@@ -5,6 +5,9 @@ import numpy as np
 
 # Initialize pygame
 pygame.init()
+pygame.mixer.init()
+
+backsound = pygame.mixer.Sound("./backsound.mp3")
 
 # Window dimensions
 W_H = 500
@@ -22,11 +25,12 @@ GROUND_HEIGHT = 100
 DINO_WIDTH = 50
 DINO_HEIGHT = 50
 
+
 class Dino:
     def __init__(self):
         self.x = 50
         self.y = W_H - DINO_HEIGHT - GROUND_HEIGHT  # Adjust based on ground height
-        self.vel = 5
+        self.vel = 10
         self.is_jumping = False
         self.jump_count = 10
         self.color_shift = 0  # Used to animate the gradient
@@ -56,6 +60,10 @@ class Dino:
 
     def handle_keys(self):
         keys = pygame.key.get_pressed()
+        if keys[pygame.K_s]:
+            self.is_jumping = False
+            self.y = W_H - DINO_HEIGHT - GROUND_HEIGHT
+            self.jump_count = 10
         
         if not self.is_jumping:
             if keys[pygame.K_SPACE]:  # Start jump on SPACE
@@ -87,11 +95,12 @@ class Obstacle:
         self.rect.x = self.x
 
 def draw_ground(win):
-    # Create an empty data buffer for the Cairo surface
+    # Create an empty data buffer for the Cairo surface    
     data = np.zeros((GROUND_HEIGHT, W_W, 4), dtype=np.uint8)  # Shape for ARGB
     cairo_surface = cairo.ImageSurface.create_for_data(data, cairo.FORMAT_ARGB32, W_W, GROUND_HEIGHT)
     ctx = cairo.Context(cairo_surface)
-
+    # Load the background image
+    
     # Create a linear gradient for the ground with animated shift
     grad = cairo.LinearGradient(0, 0, 0, GROUND_HEIGHT)
 
@@ -112,15 +121,22 @@ def draw_ground(win):
     pygame_surface = pygame.image.frombuffer(data.tobytes(), (W_W, GROUND_HEIGHT), 'ARGB')
     win.blit(pygame_surface, (0, W_H - GROUND_HEIGHT))
 
+
 def main():
     dino = Dino()
     obstacles = []
     score = 0
     font = pygame.font.SysFont("Arial", 30)
     game_over = False
+    played=False
     clock = pygame.time.Clock()
-
+    
     while True:
+        if not played:
+            backsound.play(-1)
+            played=True
+        
+
         clock.tick(60)
         
         for event in pygame.event.get():
@@ -133,6 +149,7 @@ def main():
                     obstacles.clear()
                     dino = Dino()  # Reset Dino
                     game_over = False
+                    played=False
 
         if not game_over:
             # Handle Dino movements
@@ -150,6 +167,7 @@ def main():
                     score += 1
                 if dino.rect.colliderect(obstacle.rect):  # Check collision
                     game_over = True
+                    backsound.stop()
 
         # Draw everything
         win.fill(WHITE)
