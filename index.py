@@ -15,6 +15,8 @@ W_W = 1000
 win = pygame.display.set_mode((W_W, W_H))
 pygame.display.set_caption("Dino Game with Gradient Effects")
 
+KEWER_KEWER =[0, 0, 0 ]
+
 # Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -68,6 +70,8 @@ class Dino:
         if not self.is_jumping:
             if keys[pygame.K_SPACE]:  # Start jump on SPACE
                 self.is_jumping = True
+                for i in range(KEWER_KEWER.__len__()-1):
+                    KEWER_KEWER[i] = random.randint(1,255)
         else:
             # Simulate jump by adjusting the y-coordinate
             if self.jump_count >= -10:
@@ -126,7 +130,8 @@ def main():
     dino = Dino()
     obstacles = []
     score = 0
-    font = pygame.font.SysFont("Arial", 30)
+    font = pygame.font.Font("./gragon.otf", 42)
+    font_bold = pygame.font.Font("./gragon.otf", 52)
     game_over = False
     played=False
     clock = pygame.time.Clock()
@@ -170,6 +175,7 @@ def main():
                     backsound.stop()
 
         # Draw everything
+        random.shuffle(obstacles)  # Shuffle to prevent flickering
         win.fill(WHITE)
         draw_ground(win)
         dino.draw(win)
@@ -182,8 +188,8 @@ def main():
 
         # Display game-over message
         if game_over:
-            game_over_text = font.render("Game Over! Press R to Restart", True, RED)
-            win.blit(game_over_text, (W_W // 2 - game_over_text.get_width() // 2, W_H // 2))
+            game_over_text = font_bold.render("Game Over! Press R to Restart", True, RED)
+            win.blit(game_over_text, (W_W // 2 - game_over_text.get_width() // 2, W_H // 2 -50))
 
         pygame.display.update()
 
