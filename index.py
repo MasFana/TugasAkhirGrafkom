@@ -90,13 +90,17 @@ class Obstacle:
         self.y = W_H - self.height - GROUND_HEIGHT
         self.speed = 10
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
-
+        self.triangle = [(self.x, self.y), (self.x+self.width, self.y), (self.x+self.width//2, self.y-self.height)]
+        
     def draw(self, win):
         pygame.draw.rect(win, RED, self.rect)
-
+        pygame.draw.polygon(win, RED, self.triangle)
+        
+        
     def move(self):
         self.x -= self.speed
         self.rect.x = self.x
+        self.triangle = [(self.x, self.y), (self.x+self.width, self.y), (self.x+self.width//2, self.y-self.height)]
 
 def draw_ground(win):
     # Create an empty data buffer for the Cairo surface    
@@ -135,12 +139,12 @@ def main():
     game_over = False
     played=False
     clock = pygame.time.Clock()
+    start = False
     
     while True:
         if not played:
             backsound.play(-1)
             played=True
-        
 
         clock.tick(60)
         
@@ -156,6 +160,17 @@ def main():
                     game_over = False
                     played=False
 
+        if not start:
+            win.fill(WHITE)
+            start_text = font_bold.render("Press SPACE to Start", True, BLACK)
+            win.blit(start_text, (W_W // 2 - start_text.get_width() // 2, W_H // 2 - 50))
+            pygame.display.update()
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_SPACE]:
+                start = True
+            else:
+                continue
+            
         if not game_over:
             # Handle Dino movements
             dino.handle_keys()
@@ -177,6 +192,7 @@ def main():
         # Draw everything
         random.shuffle(obstacles)  # Shuffle to prevent flickering
         win.fill(WHITE)
+
         draw_ground(win)
         dino.draw(win)
         for obstacle in obstacles:
