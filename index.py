@@ -46,8 +46,8 @@ class Dino:
 
         # Set up a radial gradient for Dino with looping color shift
         grad = cairo.RadialGradient(DINO_WIDTH / 2, DINO_HEIGHT / 2, 0, DINO_WIDTH / 2, DINO_HEIGHT / 2, DINO_WIDTH / 2)
-        grad.add_color_stop_rgb(0, (self.color_shift % 255) / 255, 0.5, 1)
-        grad.add_color_stop_rgb(1, 1, (self.color_shift % 255) / 255, 0.5)
+        grad.add_color_stop_rgba(0, (self.color_shift % 255) / 255, 0.5, 1, 1)
+        grad.add_color_stop_rgba(1, 1, (self.color_shift % 255) / 255, 0.5, 1)
         ctx.set_source(grad)
         ctx.rectangle(0, 0, DINO_WIDTH, DINO_HEIGHT)
         ctx.fill()
@@ -115,10 +115,10 @@ def draw_ground(win):
     # Calculate the color shift based on time
     color_shift = (pygame.time.get_ticks() // 10) % 256  # Use 256 for smooth transitions
 
-    # Define the gradient colors
-    grad.add_color_stop_rgb(0, color_shift / 255.0, 0, 0.5)  # Vary red based on color_shift
-    grad.add_color_stop_rgb(0.5, 0, color_shift / 255.0, 0)  # Vary green based on color_shift
-    grad.add_color_stop_rgb(1, 0, 0.5, color_shift / 255.0)  # Vary blue based on color_shift
+    # Define the gradient colors with RGBA format
+    grad.add_color_stop_rgba(0, (color_shift + 85) % 255 / 255.0, 0.5, 1, 1)  # Start with a non-black color
+    grad.add_color_stop_rgba(0.5, 1, (color_shift + 170) % 255 / 255.0, 0.5, 1)  # Midpoint color
+    grad.add_color_stop_rgba(1, 0.5, 1, (color_shift + 255) % 255 / 255.0, 1)  # End with a non-black color
 
     # Set the gradient as the source and fill the rectangle
     ctx.set_source(grad)
@@ -126,7 +126,7 @@ def draw_ground(win):
     ctx.fill()
 
     # Convert Cairo surface to Pygame surface and blit to the window
-    pygame_surface = pygame.image.frombuffer(data.tobytes(), (W_W, GROUND_HEIGHT), 'ARGB')
+    pygame_surface = pygame.image.frombuffer(data.tobytes(), (W_W, GROUND_HEIGHT), 'RGBA')
     win.blit(pygame_surface, (0, W_H - GROUND_HEIGHT))
 
 
